@@ -1,1 +1,3 @@
-# boursier_louis_set08122_cw1
+# Algorithms and Data Structures coursework
+
+Tic Tac Toe with variable grid size, winning conditions, MiniMax AI and undo-redo with replay.
