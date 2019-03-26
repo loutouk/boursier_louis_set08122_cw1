@@ -1,3 +1,6 @@
+// Made by Louis Boursier
+// GitHub: https://github.com/loutouk
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,7 +9,6 @@
 #define PLAYER_V_COMPUTER 1
 #define COMPUTER_V_COMPUTER 2
 #define LOAD 3
-#define OPTIONS 4
 
 #define DEFAULT_GRID_HEIGHT 3
 #define DEFAULT_GRID_WIDTH 3
@@ -72,14 +74,14 @@ void pushNodeBottom(struct DoubleLinkedNode **node, struct Content *newValue){
 	*node = newNode; // The pointer now points to the last element
 }
 
-// Move the pointer of the head of the stack to the previous element without removing any node
+// Moves the pointer of the head of the stack to the previous element without removing any node
 void previousNode(struct DoubleLinkedNode **node){
 	if(*node != NULL && (*node)->right != NULL){
 		*node = (*node)->right;
 	}
 }
 
-// Move the pointer of the head of the stack to the next element without removing any node
+// Moves the pointer of the head of the stack to the next element without removing any node
 void nextNode(struct DoubleLinkedNode **node){
 	if(*node != NULL && (*node)->left != NULL){
 		*node = (*node)->left;
@@ -193,15 +195,13 @@ _Bool isMovePossible(int height, int width, char grid[height][width], int row, i
 
 int getWinner(int height, int width, int winNumber, char grid[height][width]){
 	
-	int lastPawnPlayer = -1;
-	int consecutivePawns = 0;
-	int totalPawnsToFinish = height * width;
-	int pawnsCount = 0;
+	int lastPawnPlayer = -1; // Stores the id of the current player pawns in sequence
+	int consecutivePawns = 0; // Stores the number of pawns in sequence
+	int totalPawnsToFinish = height * width; // The max number of pawns that can be played to detect a draw
+	int pawnsCount = 0; // The counter of pawns played to detect a draw
 
-	// Check the horizontal wins
-	for(int i=0 ; i<height ; i++){
-		// reset to 0 on each new lines
-		consecutivePawns = 0;
+	for(int i=0 ; i<height ; i++){ // Check the horizontal wins
+		consecutivePawns = 0; // reset to 0 on each new lines
 		lastPawnPlayer = -1;
 		for(int j=0 ; j<width ; j++){
 			int currentPlayer = grid[i][j];
@@ -217,11 +217,8 @@ int getWinner(int height, int width, int winNumber, char grid[height][width]){
 			}
 		}
 	}
-	pawnsCount = 0;
-	lastPawnPlayer = -1;
-	consecutivePawns = 0;
-	// Check the vertical wins
-	for(int i=0 ; i<width ; i++){
+
+	for(int i=0 ; i<width ; i++){ // Check the vertical wins
 		consecutivePawns = 0;
 		lastPawnPlayer = -1;
 		for(int j=0 ; j<height ; j++){
@@ -235,8 +232,8 @@ int getWinner(int height, int width, int winNumber, char grid[height][width]){
 			}
 		}
 	}
-	// Check the crossed wins bottom left to top right, upper part
-	for(int i=0 ; i<height ; i++){
+	
+	for(int i=0 ; i<height ; i++){ // Check the crossed wins bottom left to top right, upper part
 		consecutivePawns = 0;
 		lastPawnPlayer = -1;
 		for(int j=i ; j>=0 ; j--){
@@ -250,8 +247,8 @@ int getWinner(int height, int width, int winNumber, char grid[height][width]){
 			}
 		}
 	}
-	// Check the crossed wins bottom left top right, lower part
-	for(int i=width-1 ; i>=0 ; i--){
+	
+	for(int i=width-1 ; i>=0 ; i--){ // Check the crossed wins bottom left top right, lower part
 		consecutivePawns = 0;
 		lastPawnPlayer = -1;
 		for(int j=0 ; j<height && j+width-1-i<width; j++){
@@ -265,10 +262,8 @@ int getWinner(int height, int width, int winNumber, char grid[height][width]){
 			}
 		}
 	}
-	lastPawnPlayer = -1;
-	consecutivePawns = 0;
-	// Check the crossed wins top left to bottom right, upper part
-	for(int i=0 ; i<width ; i++){
+
+	for(int i=0 ; i<width ; i++){ // Check the crossed wins top left to bottom right, upper part
 		consecutivePawns = 0;
 		lastPawnPlayer = -1;
 		for(int j=0 ; j<height && j<=i ; j++){
@@ -282,8 +277,8 @@ int getWinner(int height, int width, int winNumber, char grid[height][width]){
 			}
 		}
 	}
-	// Check the crossed wins top left to bottom right, lower part
-	for(int i=0 ; i<height-1  ; i++){
+	
+	for(int i=0 ; i<height-1  ; i++){ // Check the crossed wins top left to bottom right, lower part
 		consecutivePawns = 0;
 		lastPawnPlayer = -1;
 		for(int j=0 ; j<width && j<=i ; j++){
@@ -297,7 +292,7 @@ int getWinner(int height, int width, int winNumber, char grid[height][width]){
 			}
 		}
 	}
-	return -1;
+	return -1; // No winner and no draw
 }
 
 void displayGrid(int height, int width, char grid[height][width]){
@@ -322,32 +317,31 @@ void displayGrid(int height, int width, char grid[height][width]){
 int minMax(int consecutivePawnsForWin, int height, int width, char grid[height][width], int depth, _Bool isMax){
 	int winnerId = getWinner(height, width, consecutivePawnsForWin, grid);
 	int moveValue = 0;
-	if(depth == 0 || winnerId != -1){
+	if(depth == 0 || winnerId != -1){ // If we reach the max depth search or a final game state
 		if(winnerId == 0){
 			return - depth; // Draw
 		}else if(winnerId == CELL_PAWN_B){
-			return (-100 - depth); // Opponent's win
+			return (-100 - depth); // Opponent's win, we prefer losing later than sooner
 
 		}else{
-			return (100 + depth); // Current player's win (AI)
+			return (100 + depth); // Current player's win (AI), we prefer wining sooner than later
 			
 		}
 	}
-	char newGrid[height][width];
-	// Clone the existing grid to a new one
-	for(int line=0 ; line<height ; line++){
+	char newGrid[height][width]; // Clones the existing grid to a new one
+	for(int line=0 ; line<height ; line++){ 
 		for(int col=0 ; col<width ; col++){
 			newGrid[line][col] = grid[line][col];
 		}
 	}
-	if(isMax){
-		moveValue = -200;
+	if(isMax){ // Max
+		moveValue = -200; // Ensures that a move will be selected
 		for(int line=0 ; line<height ; line++){
 			for(int col=0 ; col<width ; col++){
-				if(isMovePossible(height, width, newGrid, line, col)){
+				if(isMovePossible(height, width, newGrid, line, col)){ // Tests all possible moves
 					newGrid[line][col] = CELL_PAWN_A; // Player's turn
 					int tmp = minMax(consecutivePawnsForWin, height, width, newGrid, depth-1, 0);
-					if(tmp>moveValue){
+					if(tmp>moveValue){ // Selects the max value because we want to play the best move
 						moveValue = tmp;
 					}
 					newGrid[line][col] = CELL_EMPTY; // Undo the move
@@ -356,13 +350,13 @@ int minMax(int consecutivePawnsForWin, int height, int width, char grid[height][
 		}
 		return moveValue;
 	}else{ // Min
-		moveValue = 200;
+		moveValue = 200; // Ensures that a move will be selected
 		for(int line=0 ; line<height ; line++){
 			for(int col=0 ; col<width ; col++){
-				if(isMovePossible(height, width, newGrid, line, col)){
+				if(isMovePossible(height, width, newGrid, line, col)){ // Tests all possible moves
 					newGrid[line][col] = CELL_PAWN_B; // Opponent's turn
 					int tmp = minMax(consecutivePawnsForWin, height, width, newGrid, depth-1, 1);
-					if(tmp<moveValue){
+					if(tmp<moveValue){ // Selects the min value because the opponent will play the worst move for us
 						moveValue = tmp;
 					}
 					newGrid[line][col] = CELL_EMPTY; // Undo the move
@@ -371,7 +365,7 @@ int minMax(int consecutivePawnsForWin, int height, int width, char grid[height][
 		}
 		return moveValue;
 	}
-	return 0; // Never reached
+	return 0; // Never reached but here for the int return of the function
 }
 
 void play(int mode){
@@ -610,7 +604,6 @@ void mainMenu(){
 		printf("%s\t%d\n", "COMPUTER VS PLAYER", PLAYER_V_COMPUTER);
 		printf("%s\t%d\n", "COMPUTER VS COMPUTER", COMPUTER_V_COMPUTER);
 		printf("%s\t\t%d\n", "LOAD AND REPLAY", LOAD);
-		printf("%s\t\t\t%d\n", "OPTIONS", OPTIONS);
 		printf("\n%s\n\n", "##########################");
 		printf("%s", "Choose a mode... ");
 		cleanStd();
@@ -626,6 +619,8 @@ void mainMenu(){
     		case PLAYER_V_COMPUTER:
     			play(PLAYER_V_COMPUTER);
     			break;
+    		case COMPUTER_V_COMPUTER:
+    			printf("%s\n", "Not implemented yet.");
     		default:
     			validInput = 0;
     			break;

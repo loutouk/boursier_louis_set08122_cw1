@@ -1,0 +1,413 @@
+% #######################################
+% ########### FILL THESE IN #############
+% #######################################
+\def\mytitle{Algorithm and Data Structure - Tic Tac Toe Game Report}
+\def\mykeywords{Louis, Boursier, Game, Tic Tac Toe, Algorithm, Data Structure, AI}
+\def\myauthor{Louis Boursier}
+\def\contact{40404293@napier.ac.uk}
+\def\mymodule{SET08122}
+% #######################################
+% #### YOU DON'T NEED TO TOUCH BELOW ####
+% #######################################
+\documentclass[10pt, a4paper]{article}
+\usepackage[a4paper,outer=1.5cm,inner=1.5cm,top=1.75cm,bottom=1.5cm]{geometry}
+\usepackage{graphicx}
+\graphicspath{{./images/}}
+%colour our links, remove weird boxes
+\usepackage[colorlinks,linkcolor={black},citecolor={blue!80!black},urlcolor={blue!80!black}]{hyperref}
+%Stop indentation on new paragraphs
+\usepackage[parfill]{parskip}
+%% Arial-like font
+\IfFileExists{uarial.sty}
+{
+    \usepackage[english]{babel}
+    \usepackage[T1]{fontenc}
+    \usepackage{uarial}
+    \renewcommand{\familydefault}{\sfdefault}
+}{
+    \GenericError{}{Couldn't find Arial font}{ you may need to install 'nonfree' fonts on your system}{}
+    \usepackage{lmodern}
+    \renewcommand*\familydefault{\sfdefault}
+}
+%Napier logo top right
+\usepackage{watermark}
+%Lorem Ipusm dolor please don't leave any in you final report ;)
+\usepackage{lipsum}
+\usepackage{xcolor}
+\usepackage{listings}
+%give us the Capital H that we all know and love
+\usepackage{float}
+%tone down the line spacing after section titles
+\usepackage{titlesec}
+%Cool maths printing
+\usepackage{amsmath}
+%PseudoCode
+\usepackage{algorithm2e}
+
+\titlespacing{\subsection}{0pt}{\parskip}{-3pt}
+\titlespacing{\subsubsection}{0pt}{\parskip}{-\parskip}
+\titlespacing{\paragraph}{0pt}{\parskip}{\parskip}
+\newcommand{\figuremacro}[5]{
+    \begin{figure}[#1]
+        \centering
+        \includegraphics[width=#5\columnwidth]{#2}
+        \caption[#3]{\textbf{#3}#4}
+        \label{fig:#2}
+    \end{figure}
+}
+
+\lstset{
+	escapeinside={/*@}{@*/}, language=C,
+	basicstyle=\fontsize{8.5}{12}\selectfont,
+	numbers=left,numbersep=2pt,xleftmargin=2pt,frame=tb,
+    columns=fullflexible,showstringspaces=false,tabsize=4,
+    keepspaces=true,showtabs=false,showspaces=false,
+    backgroundcolor=\color{white}, morekeywords={inline,public,
+    class,private,protected,struct},captionpos=t,lineskip=-0.4em,
+	aboveskip=10pt, extendedchars=true, breaklines=true,
+	prebreak = \raisebox{0ex}[0ex][0ex]{\ensuremath{\hookleftarrow}},
+	keywordstyle=\color[rgb]{0,0,1},
+	commentstyle=\color[rgb]{0.133,0.545,0.133},
+	stringstyle=\color[rgb]{0.627,0.126,0.941}
+}
+
+\thiswatermark{\centering \put(336.5,-38.0){\includegraphics[scale=0.8]{logo}} }
+\title{\mytitle}
+\author{\myauthor\hspace{1em}\\\contact\\Edinburgh Napier University\hspace{0.5em}-\hspace{0.5em}\mymodule}
+\date{}
+\hypersetup{pdfauthor=\myauthor,pdftitle=\mytitle,pdfkeywords=\mykeywords}
+\sloppy
+% #######################################
+% ########### START FROM HERE ###########
+% #######################################
+\begin{document}
+    \maketitle
+    \begin{abstract}
+	This document is a report for the first coursework in the algorithm and data structure module \cite{module}. For this coursework, we had to build a console user interface tic tac toe game using the C language and standard library. The objective is to demonstrate our understanding of the basics data structure, and evaluate the performance of an algorithm
+based on the size of a problem input, but also to demonstrate a working knowledge of a
+relevant data structures API and design and develop and evaluate data structures
+and algorithms.
+    \end{abstract}
+
+\textbf{Keywords -- }{\mykeywords} 
+
+\section{Introduction}
+I had to design the algorithm of the game and define what structure I will need to implement it. I had to prioritized the most appropriate data structure and algorithm for the game, based on a complexity analysis and game making and artificial intelligence knowledge. I also enhance the basic game with a expandable grid game in terms of height, width, and pawns in sequence to win the game. It is possible to play against another player or the computer. The player can undo and redo the moves. The player can also save the game and load it later to replay it and then continue it.
+
+\figuremacro{h}{game}{Game}{ - A player versus player game with a 5 by 5 grid and 4 pawns for winning}{1.0}
+
+
+\section{Design}
+
+\subsection{Game loop design}
+
+The game follows a traditional game loop that can be described the following way:
+\begin{lstlisting}[caption = Game loop]
+game = askInfo()
+do
+	displayInfo(game)
+	currentPlayer = setPlayer(game)
+	do
+		move = askInfo()
+	while isValidMove(move) = False
+	play(game, move)
+while (winner = getWinner()) != NULL
+displayInfo(winner)
+\end{lstlisting}
+
+\subsection{Data structures}
+
+\begin{lstlisting}[caption = Player]
+struct Player {
+	int id;
+};
+\end{lstlisting}
+I chose a Struct for the player structure, even if it only contains an integer for identifying the player. This is for two reasons: first, have a more readable code in terms of syntax, and second, plan ahead for an extension of the player information (a name for example).
+
+\begin{lstlisting}[caption = Position]
+struct Position {
+	int x;
+	int y;
+};
+\end{lstlisting}
+For the position of the pawn, I have simply created a Struct with two integers for the X and Y coordinates.
+That way, I have got all the information in one variable instead of having to deal with two separate integers.
+
+\begin{lstlisting}[caption = Content]
+struct Content {
+	struct Position* position;
+	struct Player* player;
+};
+\end{lstlisting}
+This Struct represents a move played by a player.
+Even though this Struct is not absolutely necessary, I have created it because it allowed me to write the code more easily, and it is also more readable. Moreover, having a Struct containing the position and the player can allow to create a game with more than two players in an unordered sequence of playing.
+For the content, I have created a Struct that contains two other Struct: the Player Struct that we saw before and the Position Struct.
+
+\begin{lstlisting}[caption = Node]
+struct DoubleLinkedNode {
+	struct DoubleLinkedNode* right;
+	struct DoubleLinkedNode* left;
+	struct Content* content;
+};
+\end{lstlisting}
+This Struct is a node used for the doubly linked list. Because it is a doubly linked list, it contains a pointer to its previous and next elements. It also contains a pointer to the move that has been played, thanks to the Content Struct.
+I have used a doubly linked list because I already knew that I will have to implement an undo an redo functionality. And this data structure is adequate for this usage because undo and redo can correspond to previous and next pointers.
+
+\begin{lstlisting}[caption = Piece]
+char pawn;
+\end{lstlisting}
+I chose to use a char to represent the pieces. Because the char is one of the lightest variable in terms of memory (1 byte). I need a light variable because the game board will be a 2 dimensional grid of char. And because the artificial intelligence algorithm will instantiate a lot of those arrays to predict the future moves and chose the best one, I need those arrays to be as light as possible. Nevertheless, the char allows me to have 256 different pawns, hence 255 players (one pawn for the empty state) if I need it, and it should be enough.
+
+\begin{lstlisting}[caption = Game Board]
+char grid[height][width];
+\end{lstlisting}
+
+I chose an array to store the game pieces. Indeed, it is perfectly suited for this need. The access of the elements is fast and easy. And because the size of the game board is fixed at the beginning of the game, I will have no problem dealing with its constant size.
+
+\subsection{Algorithms}
+There are only two algorithms to explain in detail. The winning or draw detection and the artificial intelligence. Let us start by the winning or draw detection algorithm.
+
+\begin{lstlisting}[caption = Win detection]
+int getWinner(int height, int width, int winNumber, char grid[height][width]){
+	
+	int lastPawnPlayer = -1; // Stores the id of the current player pawns in sequence
+	int consecutivePawns = 0; // Stores the number of pawns in sequence
+	int totalPawnsToFinish = height * width; // The max number of pawns that can be played to detect a draw
+	int pawnsCount = 0; // The counter of pawns played to detect a draw
+
+	for(int i=0 ; i<height ; i++){ // Check the horizontal wins
+		consecutivePawns = 0; // reset to 0 on each new lines
+		lastPawnPlayer = -1;
+		for(int j=0 ; j<width ; j++){
+			int currentPlayer = grid[i][j];
+			if(currentPlayer != lastPawnPlayer){
+				lastPawnPlayer = currentPlayer;
+				consecutivePawns = 0;
+			}
+			if(currentPlayer != CELL_EMPTY && ++pawnsCount == totalPawnsToFinish){
+				return 0; // Draw
+			}
+			if(currentPlayer != CELL_EMPTY && ++consecutivePawns == winNumber){
+				return currentPlayer;
+			}
+		}
+	}
+
+	for(int i=0 ; i<width ; i++){ // Check the vertical wins
+		consecutivePawns = 0;
+		lastPawnPlayer = -1;
+		for(int j=0 ; j<height ; j++){
+			int currentPlayer = grid[j][i];
+			if(currentPlayer != lastPawnPlayer){
+				lastPawnPlayer = currentPlayer;
+				consecutivePawns = 0;
+			}
+			if(currentPlayer != CELL_EMPTY && ++consecutivePawns == winNumber){
+				return currentPlayer;
+			}
+		}
+	}
+	
+	for(int i=0 ; i<height ; i++){ // Check the crossed wins bottom left to top right, upper part
+		consecutivePawns = 0;
+		lastPawnPlayer = -1;
+		for(int j=i ; j>=0 ; j--){
+			int currentPlayer = grid[j][i-j];
+			if(currentPlayer != lastPawnPlayer){
+				lastPawnPlayer = currentPlayer;
+				consecutivePawns = 0;
+			}
+			if(currentPlayer != CELL_EMPTY && ++consecutivePawns == winNumber){
+				return currentPlayer;
+			}
+		}
+	}
+	
+	for(int i=width-1 ; i>=0 ; i--){ // Check the crossed wins bottom left top right, lower part
+		consecutivePawns = 0;
+		lastPawnPlayer = -1;
+		for(int j=0 ; j<height && j+width-1-i<width; j++){
+			int currentPlayer = grid[height-1-j][j+width-1-i];
+			if(currentPlayer != lastPawnPlayer){
+				lastPawnPlayer = currentPlayer;
+				consecutivePawns = 0;
+			}
+			if(currentPlayer != CELL_EMPTY && ++consecutivePawns == winNumber){
+				return currentPlayer;
+			}
+		}
+	}
+
+	for(int i=0 ; i<width ; i++){ // Check the crossed wins top left to bottom right, upper part
+		consecutivePawns = 0;
+		lastPawnPlayer = -1;
+		for(int j=0 ; j<height && j<=i ; j++){
+			int currentPlayer = grid[j][width-i+j-1];
+			if(currentPlayer != lastPawnPlayer){
+				lastPawnPlayer = currentPlayer;
+				consecutivePawns = 0;
+			}
+			if(currentPlayer != CELL_EMPTY && ++consecutivePawns == winNumber){
+				return currentPlayer;
+			}
+		}
+	}
+	
+	for(int i=0 ; i<height-1  ; i++){ // Check the crossed wins top left to bottom right, lower part
+		consecutivePawns = 0;
+		lastPawnPlayer = -1;
+		for(int j=0 ; j<width && j<=i ; j++){
+			int currentPlayer = grid[height-i+j-1][j];
+			if(currentPlayer != lastPawnPlayer){
+				lastPawnPlayer = currentPlayer;
+				consecutivePawns = 0;
+			}	
+			if(currentPlayer != CELL_EMPTY && ++consecutivePawns == winNumber){
+				return currentPlayer;
+			}
+		}
+	}
+	return -1; // No winner and no draw
+}
+\end{lstlisting}
+This function returns -1 if there is no winner, 0 if there is a draw, or the id of the winner otherwise.
+It first checks the horizontal wins, then the verticals, then crossed wins from bottom left to top right (upper and lower part) and finally the crossed wins from top left to bottom right (upper and lower part).
+It browses the cells on the way defined previously, and when it encounters the same pawn that it encountered before, it increments the counter of the player's pawn. Otherwise, the counter is reset to 0. If, after incrementing the counter, the counter is equal to the number of pawns in sequence to win, then the player won and we return its id.
+We know if there is a draw if all the cells have been played.
+The way this function is written allow the game to detect wins or draws on every rectangular shaped boards.
+
+\begin{lstlisting}[caption = Min Max]
+int minMax(int consecutivePawnsForWin, int height, int width, char grid[height][width], int depth, _Bool isMax){
+	int winnerId = getWinner(height, width, consecutivePawnsForWin, grid);
+	int moveValue = 0;
+	if(depth == 0 || winnerId != -1){ // If we reach the max depth search or a final game state
+		if(winnerId == 0){
+			return - depth; // Draw
+		}else if(winnerId == CELL_PAWN_B){
+			return (-100 - depth); // Opponent's win, we prefer losing later than sooner
+
+		}else{
+			return (100 + depth); // Current player's win (AI), we prefer wining sooner than later
+			
+		}
+	}
+	char newGrid[height][width]; // Clones the existing grid to a new one
+	for(int line=0 ; line<height ; line++){ 
+		for(int col=0 ; col<width ; col++){
+			newGrid[line][col] = grid[line][col];
+		}
+	}
+	if(isMax){ // Max
+		moveValue = -200; // Ensures that a move will be selected
+		for(int line=0 ; line<height ; line++){
+			for(int col=0 ; col<width ; col++){
+				if(isMovePossible(height, width, newGrid, line, col)){ // Tests all possible moves
+					newGrid[line][col] = CELL_PAWN_A; // Player's turn
+					int tmp = minMax(consecutivePawnsForWin, height, width, newGrid, depth-1, 0);
+					if(tmp>moveValue){ // Selects the max value because we want to play the best move
+						moveValue = tmp;
+					}
+					newGrid[line][col] = CELL_EMPTY; // Undo the move
+				}
+			}
+		}
+		return moveValue;
+	}else{ // Min
+		moveValue = 200; // Ensures that a move will be selected
+		for(int line=0 ; line<height ; line++){
+			for(int col=0 ; col<width ; col++){
+				if(isMovePossible(height, width, newGrid, line, col)){ // Tests all possible moves
+					newGrid[line][col] = CELL_PAWN_B; // Opponent's turn
+					int tmp = minMax(consecutivePawnsForWin, height, width, newGrid, depth-1, 1);
+					if(tmp<moveValue){ // Selects the min value because the opponent will play the worst move for us
+						moveValue = tmp;
+					}
+					newGrid[line][col] = CELL_EMPTY; // Undo the move
+				}
+			}
+		}
+		return moveValue;
+	}
+	return 0; // Never reached but here for the int return of the function
+}
+\end{lstlisting}
+
+The Min Max algorithm is a simple search algorithm for a game played in sequence with a define set of actions and winning conditions. We just assume that the opponent will play the best move, hence the worst for us: this is for the Min. And we want to play the best move: this is for the Max. This algorithm takes the current state of the game, and for each possible move, select the one with the bigger score. This is the best move we have calculated. Actually, we call the max function for each of the possible moves. And max will recursively call the min function and vice versa. This is because it represents a simulation of the game where it is our turn to play and then the opponents turn etc...
+The recursive calls end when we reach a final state of the game. A this stage, the score is then recursively returned (for example 1 for a win, 0 for a draw and -1 for a lose).
+But when the grid size gets bigger than 3 by 3 or when the set of action is too large, we can set a maximum depth of recursive call, where we evaluate the board. Even if there is no winner, we can still compute a score by looking for good positions and advantages. For example, if we have two aligned pawns that are not blocked, this should returns a better score than having only single scattered pawns.
+
+\section{Enhancements}
+With more time, I would have implemented a way of saving multiple games and not only one. I would have allow the computer to play against itself. And I would also have added an alpha beta pruning to the min max algorithm. I would like to create a grid with different shapes and create a game with more than two players, with an on-line mode. Finally, I would have look for a smarter AI, because this one is weak on big grid. I may have look into heuristics and focus on the promising cells only and not check all the cells.
+
+\section{Critical Evaluation}
+In this section I will analyse the main function of the game and their complexity.
+
+\subsection{Display grid}
+Because I display the grid cell by cell, the complexity is directly proportional to the size of the grid.
+So the complexity is pretty bad because it is O(n) with n the number of cells, but because this function is only called once per loop, and the grid will never be that big, it is not problem in practice.
+
+\subsection{isWinner function}
+As for the display grid function, this function is proportional to the size of the grid, but because we need to browse the grid 6 times (see the upper explanations) it is longer in practice even though its complexity is still O(n).
+
+\subsection{Play a move}
+The doubly linked list works on a LIFO stack way. It means that the function pushNodeTop() works in a constant O(1) time because we always have the pointer on the last element and we don't need to browse all the list but just push to the top.
+
+\begin{lstlisting}
+void pushNodeBottom(struct DoubleLinkedNode **node, struct Content *newValue){ // Inserts a new node in a FIFO stack way
+	struct DoubleLinkedNode *newNode = malloc(sizeof(struct DoubleLinkedNode));
+	newNode->content = newValue;
+	newNode->right = NULL;
+	newNode->left = NULL;
+	if(*node != NULL){
+		newNode->left = *node; // We connect the new element to the old one
+		(*node)->right = newNode; // And we connect the old one to the new one
+	}
+	*node = newNode; // The pointer now points to the last element
+}
+\end{lstlisting}
+
+\subsection{Save game}
+The saving of the game works in a O(n) time with n the number of nodes, because we need to browse all the moves from last to first and write them to a file. The complexity is bad but as before it is not a problem in practice because the list is never that big, and the save is only used occasionally when the player wants it.
+
+\subsection{Load game}
+The loading of the game loads the doubly linked saved in game. So pushNodeBottom() works the same way as the pushNodeTop() function for adding a new node, except that it works in a FIFO stack way because the save file is written from the last node to the first, and we need to create the list in the good sequence. Anyway, the complexity is the same O(n).
+
+\subsection{Undo and Redo with the doubly linked list}
+Because we only move the head pointer to the previous or next move, the complexity is an excellent O(1).
+
+\begin{lstlisting}
+// Moves the pointer of the head of the stack to the previous element without removing any node
+void previousNode(struct DoubleLinkedNode **node){
+	if(*node != NULL && (*node)->right != NULL){
+		*node = (*node)->right;
+	}
+}
+// Moves the pointer of the head of the stack to the next element without removing any node
+void nextNode(struct DoubleLinkedNode **node){
+	if(*node != NULL && (*node)->left != NULL){
+		*node = (*node)->left;
+	}
+}
+\end{lstlisting}
+
+\subsection{Min Max}
+Here is the weak point of the game in terms of complexity and computing resources. Because of the nature of the algorithm, the resources needed for computing it quickly explodes with the size of the possible moves. Indeed, it creates a tree of all possible moves from a game state until a final state or depth.
+
+With n the number of possible moves and considering that if a move is played only one move is withdrawn:
+\begin{equation}
+possibleMoves = \sum_{n=0}^{depth} n-i*(n-i-1)
+\end{equation}
+\begin{equation}
+possibleMoves = n!*(n+1)!/2
+\end{equation}
+\begin{equation}
+O(n) = n!
+\end{equation}
+
+\section{Personal Evaluation}
+Having already implemented a chess game \cite{game} with Min Max and Alpha Beta pruning in C with a doubly linked list for undo and redo, I mostly have to recall how I did it three years ago. But I also learnt to analyse the complexity of the algorithm. This allowed me to formally explain the complexity and weakness of the Min Max algorithm (even with the pruning).
+
+\bibliographystyle{ieeetr}
+\bibliography{references_louis_boursier}
+		
+\end{document}
