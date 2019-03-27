@@ -314,6 +314,10 @@ void displayGrid(int height, int width, char grid[height][width]){
 	}
 }
 
+int evaluateBoard(int consecutivePawnsForWin, int height, int width, char grid[height][width]){
+	return 0; // TODO improve this by giving a score by loking for pawns in sequence or good positions
+}
+
 int minMax(int consecutivePawnsForWin, int height, int width, char grid[height][width], int depth, _Bool isMax){
 	int winnerId = getWinner(height, width, consecutivePawnsForWin, grid);
 	int moveValue = 0;
@@ -323,9 +327,11 @@ int minMax(int consecutivePawnsForWin, int height, int width, char grid[height][
 		}else if(winnerId == CELL_PAWN_B){
 			return (-100 - depth); // Opponent's win, we prefer losing later than sooner
 
-		}else{
+		}else if(winnerId == CELL_PAWN_A){
 			return (100 + depth); // Current player's win (AI), we prefer wining sooner than later
 			
+		}else{ // No winner and no draw
+			return evaluateBoard(consecutivePawnsForWin, height, width, grid);
 		}
 	}
 	char newGrid[height][width]; // Clones the existing grid to a new one
